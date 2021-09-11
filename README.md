@@ -7,7 +7,7 @@ This is achieved by working with a "function factory pattern" to generate all re
 Currently the software architecture is not final and the idea doesnt shine through nicely. Future work will get it there - hopefully :-) 
 
 
-# main workflow script ... just execute it :-) 
+# example and demo 
 
 ```{r class.source="bg-danger", class.output="bg-warning"}
 source("helper_funs_framework.R")
