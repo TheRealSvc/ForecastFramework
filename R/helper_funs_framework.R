@@ -177,9 +177,9 @@ FunGen <- function(params) {
 #' Function that serves as a warpper to forecasts
 #'
 #' This is to create a unique way to create a forecast object. The forecast object are similar independently of the class of the fitted model
-#' @param Model a fitted Model
+#' @param fittedModel a fitted Model
+#' @param ValiLength length of Validation data for backtesting
 #' @return forecast object
-#' @param ValiLenght length of Validation data for backtesting
 #' @export
 forecastGen <- function(fittedModel, ValiLength=1) {
 #browser()
