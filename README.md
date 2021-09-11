@@ -1,7 +1,7 @@
 # ForecastFramework
 A simple framework to perform univariate forecasting in R 
 
-The idea is to generate a simple, yet scalable framework to register custom univariate forecasting algorithms to keep the "main_script" clean. 
+The idea is to generate a simple, yet scaleable framework to register custom univariate forecasting algorithms to keep the "main_script" clean. 
 This is achieved by working with a "function factory pattern" to generate all relevant functions (preproc, outlier, fitting and prediction ...) functions in a list. Like this a highly "function-parallel" code can be written (as opposed to data-parallel). Hence this pattern might be valuable for small-data/big-compute scenarious.
 
 Currently the software architecture is not final and the idea doesnt shine through nicely. Future work will get it there - hopefully :-) 
@@ -10,22 +10,24 @@ Currently the software architecture is not final and the idea doesnt shine throu
 # example and demo 
 
 ```{r class.source="bg-danger", class.output="bg-warning"}
-source("helper_funs_framework.R")
-source("helper_funs_pattern.R")
-library(e1071)
-library(forecast)
+# main workflow script ... just execute it :-)
+
+#source("R/helper_funs_framework.R")
+#
+library(forecast4you)
+#library(forecast)
 
 
 # --------- 1 Parametrization --------------------------------
-TrainLength <- 48 # length of the training data for the splits 
-ValidLength <- 6 # length of Validation duration for backtesting 
+TrainLength <- 48 # length of the training data for the splits
+ValidLength <- 6 # length of Validation duration for backtesting
 
 
-# parametrize models --> this will go as argument into the fitting function ... this is up to you what to define here ! 
-# new models must be added in the FunGen function in the helper_funs_framework 
+# parametrize models --> this will go as argument into the fitting function ... this is up to you what to define here !
+# new models must be added in the FunGen function in the helper_funs_framework
 sigLevels <- c(80,95)
 modelParams <- list("lastval"=list(type="lastval", sigLevels=sigLevels),
-                    "LinReg"=list(type="linreg", numobs=3, sigLevels=sigLevels), 
+                    "LinReg"=list(type="linreg", numobs=3, sigLevels=sigLevels),
                     "ets no trend season no damp"=list(type="ets",model="ANA", damped=FALSE, sigLevels=sigLevels),
                     "Arima (1,0,0) with drift"= list(type="arima", order=c(1,0,0), include.drift=1, include.mean=1, sigLevels=sigLevels),
                     "percentage"=list(type="percentage",bandPM=10, sigLevels=sigLevels))
@@ -36,7 +38,7 @@ modelParams <- list("lastval"=list(type="lastval", sigLevels=sigLevels),
 dat <- as.data.frame(matrix(runif(600,-10,10), ncol=10, nrow=60))
 
 randomFun <- function(x) {
-  a = runif(1,-1,1) 
+  a = runif(1,-1,1)
   b = runif(1,-10,10)
   sinPeriodicity = runif(1,0,180)
   sinAmp = runif(1,10,50)
@@ -44,7 +46,7 @@ randomFun <- function(x) {
 }
 
 for(i in 1:ncol(dat)) {
-  dat[,i] <-  randomFun(dat[,i]) 
+  dat[,i] <-  randomFun(dat[,i])
 }
 
 colnames(dat) <- c("name" , paste0("timeseriesNo_",1:(ncol(dat)-1)))  # name
@@ -57,10 +59,10 @@ dat[,1] <- paste0("t_",1:nrow(dat))
 modelFitFuns <- CreateModelFuns(paramsList = modelParams)  # output is a list of functions by using a "function factory pattern" (no calculation happens here)
 
 
-# creation of data splits (train and Validation) and use a list tree as data representation 
-# Note: as many train/valid sets will be generated as possible given the data, TrainLength and ValidLength. Its all stored in a list tree for further enrichment   
-splitFun <- CreateWalkForwardFuns(lTrain=TrainLength, lValid=ValidLength) 
-splitDat <- lapply(dat[,2:ncol(dat)], splitFun)  
+# creation of data splits (train and Validation) and use a list tree as data representation
+# Note: as many train/valid sets will be generated as possible given the data, TrainLength and ValidLength. Its all stored in a list tree for further enrichment
+splitFun <- CreateWalkForwardFuns(lTrain=TrainLength, lValid=ValidLength)
+splitDat <- lapply(dat[,2:ncol(dat)], splitFun)
 
 # actual prediction: calling all the fitting functions on all the splits of all the timeseries.
 # Note: this can be easily parallelized (though it is not yet in that shape)
@@ -68,9 +70,10 @@ splitDat2 <- DoPrediction(splitDat=splitDat, modelFitFuns, ValiLength = ValidLen
 
 
 # ---- 3 some plotting  --------
-# just play around. A wrapper around this could make sense in order to show more info in one plot    
+# just play around. A wrapper around this could make sense in order to show more info in one plot
 graphics.off()
 plotSingleModelSingleAccount(accountName = "timeseriesNo_1", splitDat = splitDat2, modelName = "ets no trend season no damp", split=1)
+
 ``` 
 
 ![example](https://github.com/TheRealSvc/ForecastFramework/blob/main/plotexample.png)

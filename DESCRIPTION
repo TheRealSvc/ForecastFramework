@@ -1,6 +1,6 @@
 Package: forecast4you
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: a univariate forecasting wrapper
+Version: 0.0.1.0
 Authors@R: 
     person(given = "Stephan",
            family = "von Cölln",
@@ -8,9 +8,14 @@ Authors@R:
            email = "svcoelln@gmail.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
 Description: Some tools meant to resemble a framework for forecasting. 
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+Imports:
+    forecast
+Suggests:
+    testthat
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
+Depends: 
+    R (>= 2.10)

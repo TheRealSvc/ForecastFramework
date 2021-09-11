@@ -1,2 +1,5 @@
 ^forecast4you\.Rproj$
 ^\.Rproj\.user$
+^\.github$
+^LICENSE\.md$
+^data-raw$
