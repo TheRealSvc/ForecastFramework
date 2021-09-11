@@ -8,8 +8,7 @@ Authors@R:
            email = "svcoelln@gmail.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
 Description: Some tools meant to resemble a framework for forecasting. 
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:

@@ -1,4 +1,5 @@
-library(forecast)
+
+
 #' Helper to detect the neccessity for a conversion
 #'
 #' This is a helper function to determine based on the prediction function if a conversion to time-series is necessary
@@ -189,11 +190,11 @@ forecastGen <- function(fittedModel, ValiLength=1) {
     tryCatch({ forecast.lm(fittedModel, ValiLength = ValiLength)}, error=function(err) {"error in LM-Forecast"})
 
   } else if (any(class(fittedModel) %in% c("lastval"))) { # for some simple functions the fittedModel is already the result of the forecast
-    fittedModel$`Point Forecast` <- rep(fittedModel$`Point Forecast`, ValidLength)
-    fittedModel$`Lo 70` <- rep(fittedModel$`Lo 70`, ValidLength) + seq(from = 1, to = ValiLength, by = 1)*(fittedModel$`Lo 70`-fittedModel$`Point Forecast`)
-    fittedModel$`Hi 70` <- rep(fittedModel$`Hi 70`, ValidLength) + seq(from = 1, to = ValiLength, by = 1)*(fittedModel$`Hi 70`-fittedModel$`Point Forecast`)
-    fittedModel$`Lo 85` <- rep(fittedModel$`Lo 85`, ValidLength) + seq(from = 1, to = ValiLength, by = 1)*(fittedModel$`Lo 85`-fittedModel$`Point Forecast`)
-    fittedModel$`Hi 85` <- rep(fittedModel$`Hi 85`, ValidLength) + seq(from = 1, to = ValiLength, by = 1)*(fittedModel$`Hi 85`-fittedModel$`Point Forecast`)
+    fittedModel$`Point Forecast` <- rep(fittedModel$`Point Forecast`, ValiLength)
+    fittedModel$`Lo 70` <- rep(fittedModel$`Lo 70`, ValiLength) + seq(from = 1, to = ValiLength, by = 1)*(fittedModel$`Lo 70`-fittedModel$`Point Forecast`)
+    fittedModel$`Hi 70` <- rep(fittedModel$`Hi 70`, ValiLength) + seq(from = 1, to = ValiLength, by = 1)*(fittedModel$`Hi 70`-fittedModel$`Point Forecast`)
+    fittedModel$`Lo 85` <- rep(fittedModel$`Lo 85`, ValiLength) + seq(from = 1, to = ValiLength, by = 1)*(fittedModel$`Lo 85`-fittedModel$`Point Forecast`)
+    fittedModel$`Hi 85` <- rep(fittedModel$`Hi 85`, ValiLength) + seq(from = 1, to = ValiLength, by = 1)*(fittedModel$`Hi 85`-fittedModel$`Point Forecast`)
 
     return(fittedModel)
   } else if (any(class(fittedModel) %in% c("percentage"))) {
@@ -293,14 +294,14 @@ DoPrediction <- function(splitDat=splitDat, modelFitFuns=modelFitFuns, ValiLengt
         tsTrans <- needsTSconversion(modelFitFuns[[modNo]])
 
         if(tsTrans) {
-          fittedModelParams <- lapply(splitDat[[kontoName ]][["Train"]], FUN=function(x) { tryCatch({ modelFitFuns[[modNo]](y=ts(x,frequency = 12)) }, error=function(err) { return("error") })})
+          fittedModelParams <- lapply(splitDat[[kontoName ]][["Train"]], FUN=function(x) { tryCatch({ modelFitFuns[[modNo]](y=stats::ts(x,frequency = 12)) }, error=function(err) { return("error") })})
           fittedModelParams <- lapply(fittedModelParams, 'attr<-', which="sigLevels",value= attr(modelFitFuns[[modNo]],"sigLevels"))
         } else {
           fittedModelParams <- lapply(splitDat[[kontoName ]][["Train"]], FUN=function(x) { tryCatch({ modelFitFuns[[modNo]](y=x) }, error=function(err) { return("error") })})
           fittedModelParams <- lapply(fittedModelParams, 'attr<-', which="sigLevels",value= attr(modelFitFuns[[modNo]],"sigLevels"))
         }
         foreCastVals <- lapply(fittedModelParams, function(x) { forecastGen(x, ValiLength=ValiLength)} )
-        capture.output(  aaa <- lapply(foreCastVals, print), file="NUL" )
+        utils::capture.output(  aaa <- lapply(foreCastVals, print), file="NUL" )
 
         splitDat[[kontoName]][["Prediction"]][[modNo]][["Predicted"]] <- lapply(aaa, FUN=function(x) { x[[1]] }) # add the forecast to the tree
         splitDat[[kontoName]][["Prediction"]][[modNo]][["L70"]] <- lapply(aaa, FUN=function(x) { x[[2]] }) # add the forecast to the tree

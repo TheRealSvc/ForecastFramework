@@ -7,9 +7,9 @@
 forecastGen(fittedModel, ValiLength = 1)
 }
 \arguments{
-\item{Model}{a fitted Model}
+\item{fittedModel}{a fitted Model}
 
-\item{ValiLenght}{length of Validation data for backtesting}
+\item{ValiLength}{length of Validation data for backtesting}
 }
 \value{
 forecast object

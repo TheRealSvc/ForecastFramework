@@ -4,7 +4,7 @@
 \alias{forecast.lm}
 \title{this is  a wrapper around the lm function in order to generate a result similar to forecast(ArimaObject)}
 \usage{
-forecast.lm(fittedModel, ValiLength = 1)
+\method{forecast}{lm}(fittedModel, ValiLength = 1)
 }
 \arguments{
 \item{ValiLength}{length of Validation data for backtesting}
