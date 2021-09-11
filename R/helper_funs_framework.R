@@ -1,5 +1,4 @@
 
-
 #' Helper to detect the neccessity for a conversion
 #'
 #' This is a helper function to determine based on the prediction function if a conversion to time-series is necessary
@@ -26,14 +25,14 @@ needsTSconversion <- function(inFun) {
 #' split the time series and creates a list tree as the main object for further operations
 #'
 #' @param lTrain length of training intervall in a walk forward validation
-#' @param lValid length of validation data for backtesting  
+#' @param lValid length of validation data for backtesting
 #' @return  all splits in form of a list "out\[\[name\]\]\[\[train\]\]" und "out\[\[name\]\]\[\[valdation\]\]"
 #' @export
 CreateWalkForwardFuns <- function(lTrain, lValid=1) { #}, outlierFun) {
   force(lTrain)
   force(lValid)
 
-  outCreateFun <- function(tsDat, TrainL=lTrain, ValiL=lValid) { 
+  outCreateFun <- function(tsDat, TrainL=lTrain, ValiL=lValid) {
     tsL <- length(tsDat)
     totalL <- TrainL + ValiL
     startInd <- 1
@@ -42,7 +41,6 @@ CreateWalkForwardFuns <- function(lTrain, lValid=1) { #}, outlierFun) {
     splitId <- 1
     outList[["Original"]] <- tsDat
     MetaDat <- attributes(tsDat)
-    outList[["AccountNo"]] <- gsub(x=levels(MetaDat$Metadaten$KontoNr)[MetaDat$Metadaten$KontoNr], pattern=" ", replacement = "0") # delete ?
 
     while (EndInd <= tsL) {
       outList[["Train"]][[as.character(splitId)]] <- c(tsDat[startInd:(startInd+TrainL-2)], tsDat[(startInd+lTrain+ValiL-2)]) # last val is original val
@@ -122,7 +120,7 @@ FunGen <- function(params) {
 
       s1 <- s*qnorm((100-(100-sigLevel1)*0.5)/100,sd=1, mean=0)
       s2 <- s*qnorm((100-(100-sigLevel2)*0.5)/100,sd=1, mean=0)
-      s70 <- s1  # + 10 # can make sense 
+      s70 <- s1  # + 10 # can make sense
       s85 <- s2  # + 10
       a <- list(`Point Forecast`=e,`Lo 70` =e-s70, `Hi 70`=e+s70, `Lo 85`=e-s85, `Hi 85`=e+s85)
       class(a) <- append(class(a),"lastval")
@@ -161,12 +159,12 @@ FunGen <- function(params) {
       s70 <- abs(bandPM*e/100)
       print(s70)
       s85 <- abs(bandPM*2*e/100)
-      eSeries <- e + seq(1,6,1)*1 
+      eSeries <- e + seq(1,6,1)*1
       low70Series <- e-seq(1,1,1)*s70
       high70Series <-e + seq(1,6,1)*s70
-      low85Series <-  e-seq(1,6,1)*s85 
-      high85Series <- e+seq(1,6,1)*s85   
-        
+      low85Series <-  e-seq(1,6,1)*s85
+      high85Series <- e+seq(1,6,1)*s85
+
       a <- list(`Point Forecast`=eSeries,`Lo 70` =low70Series, `Hi 70`=high70Series, `Lo 85`=low85Series, `Hi 85`=high85Series)
       class(a) <- append(class(a),"percentage")
       attr(a,"sigLevels") <- sigLevels
@@ -181,7 +179,7 @@ FunGen <- function(params) {
 #' This is to create a unique way to create a forecast object. The forecast object are similar independently of the class of the fitted model
 #' @param Model a fitted Model
 #' @return forecast object
-#' @param ValiLenght length of Validation data for backtesting 
+#' @param ValiLenght length of Validation data for backtesting
 #' @export
 forecastGen <- function(fittedModel, ValiLength=1) {
 #browser()
@@ -196,7 +194,7 @@ forecastGen <- function(fittedModel, ValiLength=1) {
     fittedModel$`Hi 70` <- rep(fittedModel$`Hi 70`, ValidLength) + seq(from = 1, to = ValiLength, by = 1)*(fittedModel$`Hi 70`-fittedModel$`Point Forecast`)
     fittedModel$`Lo 85` <- rep(fittedModel$`Lo 85`, ValidLength) + seq(from = 1, to = ValiLength, by = 1)*(fittedModel$`Lo 85`-fittedModel$`Point Forecast`)
     fittedModel$`Hi 85` <- rep(fittedModel$`Hi 85`, ValidLength) + seq(from = 1, to = ValiLength, by = 1)*(fittedModel$`Hi 85`-fittedModel$`Point Forecast`)
-    
+
     return(fittedModel)
   } else if (any(class(fittedModel) %in% c("percentage"))) {
     return(fittedModel)
@@ -208,7 +206,7 @@ forecastGen <- function(fittedModel, ValiLength=1) {
 #'
 #' Note: in the function are two hidden parameters for calculating the s70 and s85 confidence intervals
 #' @param Model a fitted model from a lm call
-#' @param ValiLength length of Validation data for backtesting 
+#' @param ValiLength length of Validation data for backtesting
 #' @return a list containing the forecast result
 #' @keywords internal
 forecast.lm <- function(fittedModel,ValiLength=1) {
@@ -228,31 +226,31 @@ forecast.lm <- function(fittedModel,ValiLength=1) {
 
 
 
-#' Plots the time series for a given account and model and split 
+#' Plots the time series for a given account and model and split
 #'
 #' This function identifies the correct account in the tree-list and displays all forecasts with confidence intervalls in a single plot
 #' @param accountName name of account to be plotted
 #' @param modelName name of the model result to be plotted as defined in the modelParams
 #' @param splitDat fitted list tree
-#' @param split index of the split to be plotted 
+#' @param split index of the split to be plotted
 #' @export
 plotSingleModelSingleAccount <- function(accountName, splitDat , modelName = "lastval", split=1) {
   dat <- splitDat[[accountName]]
-  
+
   forecastSeries = c(dat$Train[[split]], dat$Prediction[[modelName]]$Predicted[[split]])
   l70 <- c(dat$Train[[split]], dat$Prediction[[modelName]]$L70[[split]])
   l85 <- c(dat$Train[[split]], dat$Prediction[[modelName]]$L85[[split]])
   h70 <- c(dat$Train[[split]], dat$Prediction[[modelName]]$H70[[split]])
   h85 <- c(dat$Train[[split]], dat$Prediction[[modelName]]$H85[[split]])
-  
+
   xx <- c(split:(split+length(l70)-1))
   original <- dat$Original[xx]
-  
+
   maxi <- max(h85)[1]
-  mini <- min(l85)[1]   
-  
+  mini <- min(l85)[1]
+
   plot( c(split:(length(forecastSeries)+split-1)), forecastSeries,col="blue", type="line",lwd=2,  ylim=c(mini,maxi), axes=FALSE, frame.plot=TRUE,ylab="Y", xlab="Time")
-  
+
   par(new=TRUE)
   plot(xx, l70,col="green", type="line", ylim=c(mini,maxi), axes=FALSE, frame.plot=TRUE,ylab="", xlab="")
   par(new=TRUE)
@@ -281,7 +279,7 @@ plotSingleModelSingleAccount <- function(accountName, splitDat , modelName = "la
 #' Step 3: Results are attached to the list tree
 #' @param splitDat list-tree
 #' @param modelFitFuns list of generated model funs
-#' @param ValiLength length of Validation data for backtesting 
+#' @param ValiLength length of Validation data for backtesting
 #' @return the list tree with addional information
 #' @export
 DoPrediction <- function(splitDat=splitDat, modelFitFuns=modelFitFuns, ValiLength=1) {

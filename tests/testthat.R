@@ -1,4 +1,4 @@
 library(testthat)
-library(ForecastFramework)
+library(forecast4you)
 
-test_check("ForecastFramework")
+test_check("forecast4you")
