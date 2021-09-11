@@ -1,4 +1,4 @@
-
+library(forecast)
 #' Helper to detect the neccessity for a conversion
 #'
 #' This is a helper function to determine based on the prediction function if a conversion to time-series is necessary
